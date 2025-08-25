@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --passWithNoTests --maxWorkes=50%",
+    "test:watch": "jest --watch --maxWorkes=25%",
+    "test:ci": "jest --runInBand",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "prepare": "husky"
@@ -13,14 +15,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "git-commit-msg-linter": "^5.0.8",
     "husky": "^9.1.7",
+    "jest": "^29.7.0",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
 }
