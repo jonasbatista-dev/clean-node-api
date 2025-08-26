@@ -195,4 +195,27 @@ describe("Signup Controller", () => {
       password: "any_password",
     });
   });
+  test("Should return 500 if AddAccount throws", async () => {
+    const { sut, addAccountStub } = makeSut();
+    const addSpy = jest
+      .spyOn(addAccountStub, "add")
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+    const httpRequest = {
+      body: {
+        email: "any@mail.com",
+        name: "any_name",
+        password: "any_password",
+        passwordConfirmation: "any_password",
+      },
+    };
+    sut.handle(httpRequest);
+
+    expect(addSpy).toHaveBeenCalledWith({
+      email: "any@mail.com",
+      name: "any_name",
+      password: "any_password",
+    });
+  });
 });
