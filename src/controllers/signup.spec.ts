@@ -1,8 +1,12 @@
 import { SignupController } from "./signup";
 
+const makeSut = (): SignupController => {
+  return new SignupController();
+};
+
 describe("Signup Controller", () => {
   test("Should return 400 if no name is provided", async () => {
-    const sut = new SignupController();
+    const sut = makeSut();
     const httpRequest = {
       body: {
         email: "any@email.com",
@@ -14,8 +18,9 @@ describe("Signup Controller", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new Error("Missing param: name"));
   });
+
   test("Should return 400 if no email is provided", async () => {
-    const sut = new SignupController();
+    const sut = makeSut();
     const httpRequest = {
       body: {
         name: "any_name",
