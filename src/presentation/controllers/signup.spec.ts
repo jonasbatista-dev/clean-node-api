@@ -1,3 +1,5 @@
+import { AccountModel } from "../../domain/models/account";
+import { AddAccount, AddAccountModel } from "../../domain/usecases/add-account";
 import { InvalidParamError, MissingParamError, ServerError } from "../errors";
 
 import type { EmailValidator } from "../protocols";
@@ -6,6 +8,7 @@ import { SignupController } from "./signup";
 interface SutTypes {
   sut: SignupController;
   emailValidatorStub: EmailValidator;
+  addAccountStub: AddAccount;
 }
 
 const makeEmailValidator = (): EmailValidator => {
@@ -17,10 +20,26 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub();
 };
 
+const makeAddAccount = (): AddAccount => {
+  class addAcountStub implements AddAccount {
+    add(account: AddAccountModel): AccountModel {
+      const fakeAccount = {
+        id: "valid_id",
+        name: "valid_name",
+        email: "any@email.com",
+        password: "any_password",
+      };
+      return fakeAccount;
+    }
+  }
+  return new addAcountStub();
+};
+
 const makeSut = (): SutTypes => {
   const emailValidatorStub = makeEmailValidator();
-  const sut = new SignupController(emailValidatorStub);
-  return { sut, emailValidatorStub };
+  const addAccountStub = makeAddAccount();
+  const sut = new SignupController(emailValidatorStub, addAccountStub);
+  return { sut, emailValidatorStub, addAccountStub };
 };
 
 describe("Signup Controller", () => {
@@ -147,5 +166,25 @@ describe("Signup Controller", () => {
     expect(httpResponse.body).toEqual(
       new InvalidParamError("passwordConfirmation"),
     );
+  });
+
+  test("Should call AddAccount", async () => {
+    const { sut, addAccountStub } = makeSut();
+    const addSpy = jest.spyOn(addAccountStub, "add");
+    const httpRequest = {
+      body: {
+        email: "any@mail.com",
+        name: "any_name",
+        password: "any_password",
+        passwordConfirmation: "any_password",
+      },
+    };
+    sut.handle(httpRequest);
+
+    expect(addSpy).toHaveBeenCalledWith({
+      email: "any@mail.com",
+      name: "any_name",
+      password: "any_password",
+    });
   });
 });
