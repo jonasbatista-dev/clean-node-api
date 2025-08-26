@@ -1,12 +1,7 @@
+import type { HttpRequest, HttpResponse } from "../../protocols/https";
 import { badRequest, serverError } from "../../helpers/http-helper";
-import type {
-  Controller,
-  EmailValidator,
-  HttpRequest,
-  HttpResponse,
-  AddAccount,
-} from "./signup-protocol";
-
+import type { Controller } from "../../protocols/controler";
+import type { EmailValidator, AddAccount } from "./signup-protocol";
 import { InvalidParamError, MissingParamError } from "../../errors";
 
 export class SignupController implements Controller {
@@ -26,30 +21,33 @@ export class SignupController implements Controller {
         "password",
         "passwordConfirmation",
       ];
+
       for (const field of requiredFields) {
         if (!httpRequest.body[field]) {
           return badRequest(new MissingParamError(field));
         }
       }
 
-      const { password, passwordConfirmation, email, name } = httpRequest.body;
+      const { name, email, password, passwordConfirmation } = httpRequest.body;
 
       if (password !== passwordConfirmation) {
         return badRequest(new InvalidParamError("passwordConfirmation"));
       }
 
-      const isvalid = this.emailValidator.isValid(email);
-      if (!isvalid) {
+      const isValid = this.emailValidator.isValid(email);
+      if (!isValid) {
         return badRequest(new InvalidParamError("email"));
       }
-      this.addAccount.add({
+
+      const account = this.addAccount.add({
         name,
         email,
         password,
       });
+
       return {
         statusCode: 200,
-        body: { message: "Signup successful" },
+        body: account,
       };
     } catch (error) {
       return serverError();
